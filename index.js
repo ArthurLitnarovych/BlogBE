@@ -1,9 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
 import { registerValidator, loginValidator, postCreateValidation } from "./validations/auth.js";
-import * as UserController from "./controllers/UserController.js";
-import * as PostController from "./controllers/PostController.js";
+import { UserController, PostController} from "./controllers/index.js";
 import checkAuth from './utils/checkAuth.js';
+import multer from "multer";
+import handleErrors from "./utils/handleErrors.js";
 
 mongoose.connect("mongodb+srv://RubyXGod:Artur1337228@cluster0.y3xmzfm.mongodb.net/blog?retryWrites=true&w=majority")
 .then(() => console.log("ok"))
@@ -12,16 +13,34 @@ mongoose.connect("mongodb+srv://RubyXGod:Artur1337228@cluster0.y3xmzfm.mongodb.n
 const app = express();
 
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 
-app.post('/auth/login', loginValidator, UserController.login);
-app.post('/auth/register', registerValidator, UserController.register);
+const storage = multer.diskStorage({
+    destination: (_, __, cb) => {
+        cb(null, 'uploads');
+    },
+    filename: (_, file, cb) => {
+        cb(null, file.originalname);
+    },
+});
+
+const upload = multer({ storage });
+
+app.post('/auth/login', loginValidator, handleErrors, UserController.login);
+app.post('/auth/register', registerValidator, handleErrors, UserController.register);
 app.get('/auth/me', checkAuth , UserController.getMe);
+
+app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
+    res.json({
+        url: `/uploads/${req.file.originalname}`,
+    });
+});
 
 app.get('/posts', PostController.getAll);
 app.get('/posts/:id', PostController.getOne);
-app.post('/posts', checkAuth, postCreateValidation, PostController.create);
+app.post('/posts', checkAuth, postCreateValidation, handleErrors, PostController.create);
 app.delete('/posts/:id', checkAuth, PostController.remove);
-app.patch('/posts/:id', checkAuth, PostController.update);
+app.patch('/posts/:id', checkAuth, postCreateValidation, handleErrors, PostController.update);
 
 app.listen(4444, (err) => {
     if (err) {
