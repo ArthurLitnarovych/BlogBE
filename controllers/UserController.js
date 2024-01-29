@@ -20,7 +20,7 @@ export const register = async (req, res) => {
 
         const token = jwt.sign({
             _id: user._id,
-        }, 'SecretKeyOfToken', {
+        }, process.env.SECRET, {
             expiresIn: '30d',
         });
 
@@ -52,7 +52,7 @@ export const login = async (req, res) => {
 
         const token = jwt.sign({
             _id: user._id,
-        }, 'SecretKeyOfToken', {
+        }, process.env.SECRET, {
             expiresIn: '30d',
         });
 

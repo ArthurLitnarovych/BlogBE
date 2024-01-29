@@ -1,4 +1,7 @@
 import PostModel from '../models/Post.js';
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const getAll = async (req, res) => {
     try {

@@ -5,8 +5,11 @@ import { UserController, PostController} from "./controllers/index.js";
 import checkAuth from './utils/checkAuth.js';
 import multer from "multer";
 import handleErrors from "./utils/handleErrors.js";
+import dotenv from "dotenv";
 
-mongoose.connect("mongodb+srv://RubyXGod:Artur1337228@cluster0.y3xmzfm.mongodb.net/blog?retryWrites=true&w=majority")
+dotenv.config();
+
+mongoose.connect(process.env.MONGODBURL)
 .then(() => console.log("ok"))
 .catch((err) => console.log(err));
 
