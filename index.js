@@ -6,6 +6,7 @@ import checkAuth from './utils/checkAuth.js';
 import multer from "multer";
 import handleErrors from "./utils/handleErrors.js";
 import dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ const app = express();
 
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
+app.use(cors('http://localhost:3000'));
 
 const storage = multer.diskStorage({
     destination: (_, __, cb) => {
@@ -40,6 +42,7 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
 });
 
 app.get('/posts', PostController.getAll);
+app.get('/posts/tags', PostController.getLastTags);
 app.get('/posts/:id', PostController.getOne);
 app.post('/posts', checkAuth, postCreateValidation, handleErrors, PostController.create);
 app.delete('/posts/:id', checkAuth, PostController.remove);
